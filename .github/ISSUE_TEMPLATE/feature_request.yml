@@ -1,0 +1,87 @@
+name: Feature Request
+description: Suggest an idea or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make the plugin better? We'd love to hear it!
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature area
+      description: What part of the plugin does this relate to?
+      options:
+        - New notification type
+        - Desktop notifications
+        - Sound / audio
+        - Click-to-focus
+        - Webhook integrations
+        - Configuration / settings
+        - Installation / setup
+        - New platform / terminal support
+        - Team mode
+        - Performance
+        - Developer experience / CLI
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this solve? Why would this be useful?
+      placeholder: |
+        I often miss notifications when... / I wish I could... / It would be helpful if...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How do you imagine this working?
+      placeholder: |
+        Describe the feature, how it would be configured, and what the user experience looks like.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you considered other approaches? Are there workarounds you currently use?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Your platform
+      description: So we know which platform to prioritize
+      multiple: true
+      options:
+        - macOS
+        - Linux
+        - Windows
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version (if relevant)
+      placeholder: "e.g. 1.36.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Mockups, examples from other tools, or anything else?
+    validations:
+      required: false

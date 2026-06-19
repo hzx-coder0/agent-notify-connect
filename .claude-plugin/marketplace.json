@@ -1,0 +1,33 @@
+{
+    "name": "claude-codex-notifications",
+    "owner": {
+        "name": "hzx-coder0"
+    },
+    "metadata": {
+        "description": "Claude Code and Codex notifications with Feishu/Lark QR binding",
+        "version": "1.0.0"
+    },
+    "plugins": [{
+        "name": "claude-codex-notifications",
+        "source": "./",
+        "description": "Claude Code and Codex notifications with Feishu/Lark QR binding",
+        "version": "1.0.0",
+        "author": {
+            "name": "hzx-coder0"
+        },
+        "repository": "https://github.com/hzx-coder0/claude-codex-notifications",
+        "license": "GPL-3.0",
+        "keywords": [
+            "notifications",
+            "alerts",
+            "claude-code",
+            "codex",
+            "feishu",
+            "lark",
+            "go",
+            "hooks"
+        ],
+        "category": "productivity",
+        "tags": ["notifications", "hooks", "alerts", "go"]
+    }]
+}

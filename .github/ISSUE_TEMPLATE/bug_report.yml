@@ -1,0 +1,195 @@
+name: Bug Report
+description: Something isn't working as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out as much as you can - it helps us fix the issue faster.
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: |
+        Run this to find your version:
+        ```
+        cat ~/.claude/settings.json | grep claude-notifications-go
+        ```
+        Or check `~/.claude/claude-notifications-go/bin/` for the binary version.
+      placeholder: "e.g. 1.36.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Linux (x64)
+        - Linux (ARM64)
+        - Windows (x64)
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version
+      placeholder: "e.g. macOS 15.4, Ubuntu 24.04, Windows 11 23H2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: terminal
+    attributes:
+      label: Terminal
+      description: What terminal are you using Claude Code in?
+      options:
+        - VS Code (integrated terminal)
+        - iTerm2
+        - Ghostty
+        - Warp
+        - kitty
+        - WezTerm
+        - Alacritty
+        - Terminal.app
+        - Hyper
+        - GNOME Terminal
+        - Konsole
+        - Tilix
+        - Terminator
+        - XFCE4 Terminal
+        - MATE Terminal
+        - Windows Terminal
+        - PowerShell
+        - Other (specify in description)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: multiplexer
+    attributes:
+      label: Terminal multiplexer (if any)
+      description: Are you running inside tmux, zellij, or similar?
+      options:
+        - None
+        - tmux
+        - tmux (iTerm2 -CC mode)
+        - zellij
+        - screen
+        - Other (specify in description)
+    validations:
+      required: false
+
+  - type: dropdown
+    id: notification-type
+    attributes:
+      label: Notification type affected
+      description: Which notification type has the issue?
+      multiple: true
+      options:
+        - Task Complete
+        - Review Complete
+        - Question
+        - Plan Ready
+        - Session Limit Reached
+        - API Error
+        - All types
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Issue category
+      options:
+        - Desktop notification not appearing
+        - Sound not playing
+        - Click-to-focus not working
+        - Wrong notification type detected
+        - Webhook not sending
+        - Installation / bootstrap failed
+        - Auto-update issue
+        - Notification spam / too many notifications
+        - Performance / high CPU or memory
+        - Configuration not applied
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the bug. What did you expect vs what actually happened?
+      placeholder: |
+        Expected: After a long task finishes, I should get a "Task Complete" notification.
+        Actual: No notification appears at all.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Open terminal and start Claude Code
+        2. Ask Claude to do something that takes a while
+        3. Wait for task to complete
+        4. No notification appears
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: |
+        Share your config if relevant (remove webhook URLs/tokens!):
+        ```
+        cat ~/.claude/claude-notifications-go/config.json
+        ```
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: hooks-config
+    attributes:
+      label: Hooks configuration
+      description: |
+        Share the notification hooks section from settings.json:
+        ```
+        cat ~/.claude/settings.json
+        ```
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error logs / output
+      description: |
+        Any error messages, terminal output, or logs that could help.
+        Run a hook manually to see errors:
+        ```
+        echo '{}' | ~/.claude/claude-notifications-go/bin/claude-notifications handle-hook Stop
+        ```
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else? Screenshots, screen recordings, related issues?
+    validations:
+      required: false

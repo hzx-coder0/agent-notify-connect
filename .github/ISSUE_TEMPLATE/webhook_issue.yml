@@ -1,0 +1,111 @@
+name: Webhook Issue
+description: Problem with webhook notifications (Slack, Discord, Telegram, etc.)
+title: "[Webhook]: "
+labels: ["bug", "webhook"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Having trouble with webhook notifications? Please fill out the details below.
+
+        **Important:** Do NOT include webhook URLs, tokens, or API keys in this report!
+
+  - type: dropdown
+    id: webhook-type
+    attributes:
+      label: Webhook service
+      options:
+        - Slack
+        - Discord
+        - Telegram
+        - Lark / Feishu
+        - ntfy
+        - Custom webhook
+        - Multiple services
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      placeholder: "e.g. 1.36.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Linux (x64)
+        - Linux (ARM64)
+        - Windows (x64)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue type
+      options:
+        - Webhook not sending at all
+        - Webhook sends but message is malformed
+        - Intermittent delivery failures
+        - Rate limiting / throttling
+        - Authentication error
+        - Wrong notification content
+        - Slow delivery / high latency
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the issue. What did you expect vs what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Webhook configuration (redacted)
+      description: |
+        Share your webhook config with URLs and tokens replaced:
+        ```json
+        {
+          "webhook": {
+            "enabled": true,
+            "url": "REDACTED",
+            "format": "slack"
+          }
+        }
+        ```
+      render: json
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error logs
+      description: |
+        Any error output when running manually:
+        ```
+        echo '{}' | ~/.claude/claude-notifications-go/bin/claude-notifications handle-hook Stop
+        ```
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Network setup (proxy, VPN, firewall), screenshots of received messages, etc.
+    validations:
+      required: false

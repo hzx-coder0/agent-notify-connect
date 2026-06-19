@@ -1,0 +1,90 @@
+# Binaries - exclude all platform-specific binaries
+# These are downloaded from GitHub Releases during setup
+bin/claude-notifications-*
+bin/*.exe
+bin/*.dll
+bin/*.so
+bin/*.dylib
+
+# Windows wrapper (created dynamically by install.sh)
+bin/claude-notifications.bat
+
+# Keep these scripts in git:
+# - bin/claude-notifications (wrapper script for Unix)
+# - bin/install.sh (installer script)
+
+# Temporary build files
+bin/test-build
+bin/sound-preview
+bin/sound-preview-*
+bin/list-devices
+bin/list-devices-*
+bin/list-sounds
+bin/list-sounds-*
+bin/.checksums.txt
+
+# macOS terminal-notifier (downloaded by install.sh for click-to-focus)
+bin/terminal-notifier.app/
+
+# macOS ClaudeNotifications.app (created by install.sh for notification icon)
+bin/ClaudeNotifications.app/
+
+# macOS ClaudeNotifier (built from swift-notifier/ or downloaded by install.sh)
+bin/ClaudeNotifier.app/
+swift-notifier/.build/
+swift-notifier/ClaudeNotifier.app/
+
+# Root binary (should be in bin/ instead)
+/claude-notifications
+
+# Test binaries
+*.test
+*.out
+
+# E2E test fixtures (generated during tests)
+bin/test_fixtures/
+test_fixtures/
+
+# Coverage
+coverage.txt
+coverage.html
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Dependencies
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+notification-debug.log
+
+# State files
+.state/
+*.lock
+
+# Build artifacts (temporary directory for builds)
+dist/
+build/
+.clinerules/byterover-rules.md
+.kilocode/rules/byterover-rules.md
+.roo/rules/byterover-rules.md
+.windsurf/rules/byterover-rules.md
+.cursor/rules/byterover-rules.mdc
+.kiro/steering/byterover-rules.md
+.qoder/rules/byterover-rules.md
+.augment/rules/byterover-rules.md
+
+.build/

@@ -1,0 +1,731 @@
+package config
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
+)
+
+// Config represents the plugin configuration
+type Config struct {
+	Notifications NotificationsConfig   `json:"notifications"`
+	Statuses      map[string]StatusInfo `json:"statuses"`
+	Debug         DebugConfig           `json:"debug,omitempty"`
+}
+
+// DebugConfig represents debug/diagnostic settings
+type DebugConfig struct {
+	Benchmark bool `json:"benchmark"` // Enable benchmark timing output to log file
+}
+
+// NotificationsConfig represents notification settings
+type NotificationsConfig struct {
+	Desktop                                     DesktopConfig    `json:"desktop"`
+	Webhook                                     WebhookConfig    `json:"webhook"`
+	Feishu                                      FeishuConfig     `json:"feishu,omitempty"`
+	SuppressQuestionAfterTaskCompleteSeconds    *int             `json:"suppressQuestionAfterTaskCompleteSeconds"`
+	SuppressQuestionAfterAnyNotificationSeconds *int             `json:"suppressQuestionAfterAnyNotificationSeconds"`
+	NotifyOnSubagentStop                        bool             `json:"notifyOnSubagentStop"`      // Send notifications when subagents (Task tool) complete, default: false
+	SuppressForSubagents                        *bool            `json:"suppressForSubagents"`      // Suppress notifications when transcript_path contains /subagents/, default: true
+	NotifyOnTextResponse                        *bool            `json:"notifyOnTextResponse"`      // Send notifications for text-only responses (no tools), default: true
+	RespectJudgeMode                            *bool            `json:"respectJudgeMode"`          // Honor CLAUDE_HOOK_JUDGE_MODE=true env var to suppress notifications, default: true
+	SuppressFilters                             []SuppressFilter `json:"suppressFilters,omitempty"` // Rules for suppressing notifications by status/branch/folder
+	TeamMode                                    string           `json:"teamMode,omitempty"`        // Team mode: "always" (no suppression, default), "wait-all" (suppress lead, notify when all idle), "never" (silent in team mode)
+}
+
+// DesktopConfig represents desktop notification settings
+type DesktopConfig struct {
+	Enabled          bool    `json:"enabled"`
+	Sound            bool    `json:"sound"`
+	TerminalBell     *bool   `json:"terminalBell"`     // Send BEL to /dev/tty for terminal tab indicators (default: true)
+	Volume           float64 `json:"volume"`           // Volume level 0.0-1.0, default 1.0 (full volume)
+	AudioDevice      string  `json:"audioDevice"`      // Audio output device name (empty = system default)
+	AppIcon          string  `json:"appIcon"`          // Path to app icon
+	ClickToFocus     bool    `json:"clickToFocus"`     // macOS: activate terminal on notification click (default: true)
+	TerminalBundleID string  `json:"terminalBundleId"` // macOS: override auto-detected terminal bundle ID (empty = auto)
+}
+
+// WebhookConfig represents webhook settings
+type WebhookConfig struct {
+	Enabled        bool                   `json:"enabled"`
+	Preset         string                 `json:"preset"`
+	URL            string                 `json:"url"`
+	ChatID         string                 `json:"chat_id"`
+	Format         string                 `json:"format"`
+	Headers        map[string]string      `json:"headers"`
+	PayloadFields  map[string]interface{} `json:"payloadFields,omitempty"`
+	Retry          RetryConfig            `json:"retry"`
+	CircuitBreaker CircuitBreakerConfig   `json:"circuitBreaker"`
+	RateLimit      RateLimitConfig        `json:"rateLimit"`
+}
+
+// FeishuConfig represents Feishu/Lark notification settings beyond incoming webhooks.
+type FeishuConfig struct {
+	Mode          string `json:"mode,omitempty"`     // custom_webhook | app_registration
+	Platform      string `json:"platform,omitempty"` // feishu | lark
+	BaseURL       string `json:"base_url,omitempty"`
+	AppID         string `json:"app_id,omitempty"`
+	AppSecret     string `json:"app_secret,omitempty"`
+	AppSecretEnv  string `json:"app_secret_env,omitempty"`
+	OwnerOpenID   string `json:"owner_open_id,omitempty"`
+	ReceiveIDType string `json:"receive_id_type,omitempty"` // open_id | chat_id | user_id | email | union_id
+	ReceiveID     string `json:"receive_id,omitempty"`
+	SignSecret    string `json:"sign_secret,omitempty"`
+	SignSecretEnv string `json:"sign_secret_env,omitempty"`
+	TokenStore    string `json:"token_store,omitempty"`
+}
+
+func (f FeishuConfig) ResolveAppSecret() string {
+	if f.AppSecretEnv != "" {
+		if value := os.Getenv(f.AppSecretEnv); value != "" {
+			return value
+		}
+	}
+	return f.AppSecret
+}
+
+func (f FeishuConfig) ResolveSignSecret() string {
+	if f.SignSecretEnv != "" {
+		if value := os.Getenv(f.SignSecretEnv); value != "" {
+			return value
+		}
+	}
+	return f.SignSecret
+}
+
+// RetryConfig represents retry settings
+type RetryConfig struct {
+	Enabled        bool   `json:"enabled"`
+	MaxAttempts    int    `json:"maxAttempts"`
+	InitialBackoff string `json:"initialBackoff"` // e.g. "1s"
+	MaxBackoff     string `json:"maxBackoff"`     // e.g. "10s"
+}
+
+// CircuitBreakerConfig represents circuit breaker settings
+type CircuitBreakerConfig struct {
+	Enabled          bool   `json:"enabled"`
+	FailureThreshold int    `json:"failureThreshold"` // failures before opening
+	Timeout          string `json:"timeout"`          // time to wait in open state, e.g. "30s"
+	SuccessThreshold int    `json:"successThreshold"` // successes needed in half-open
+}
+
+// RateLimitConfig represents rate limiting settings
+type RateLimitConfig struct {
+	Enabled           bool `json:"enabled"`
+	RequestsPerMinute int  `json:"requestsPerMinute"`
+}
+
+// StatusChannelConfig represents per-channel status overrides.
+type StatusChannelConfig struct {
+	Enabled *bool `json:"enabled,omitempty"` // nil = inherit default enabled behavior
+}
+
+// StatusInfo represents configuration for a specific status
+type StatusInfo struct {
+	Enabled *bool                `json:"enabled,omitempty"` // nil = true (default for backward compatibility)
+	Desktop *StatusChannelConfig `json:"desktop,omitempty"`
+	Webhook *StatusChannelConfig `json:"webhook,omitempty"`
+	Title   string               `json:"title"`
+	Sound   string               `json:"sound"`
+}
+
+// SuppressFilter defines conditions for suppressing notifications.
+// All specified (non-nil) fields must match for the filter to suppress.
+// Omitted fields act as wildcards (match any value).
+type SuppressFilter struct {
+	Name      string  `json:"name,omitempty"`
+	Status    *string `json:"status,omitempty"`
+	GitBranch *string `json:"gitBranch"` // no omitempty — nil means "any", "" means "no branch"
+	Folder    *string `json:"folder,omitempty"`
+}
+
+// Matches returns true if all specified fields match the given values.
+func (f *SuppressFilter) Matches(status, gitBranch, folder string) bool {
+	if f.Status != nil && *f.Status != status {
+		return false
+	}
+	if f.GitBranch != nil && *f.GitBranch != gitBranch {
+		return false
+	}
+	if f.Folder != nil && *f.Folder != folder {
+		return false
+	}
+	return true
+}
+
+// HasConditions returns true if the filter has at least one condition field set.
+func (f *SuppressFilter) HasConditions() bool {
+	return f.Status != nil || f.GitBranch != nil || f.Folder != nil
+}
+
+// intPtr returns a pointer to the given int value
+func intPtr(v int) *int {
+	return &v
+}
+
+// stringPtr returns a pointer to the given string value
+func stringPtr(v string) *string {
+	return &v
+}
+
+const defaultSuppressQuestionAfterAnyNotificationSeconds = 7
+
+// DefaultConfig returns a config with sensible defaults
+func DefaultConfig() *Config {
+	// Get plugin root from environment, fallback to current directory
+	pluginRoot := platform.ExpandEnv("${CLAUDE_PLUGIN_ROOT}")
+	if pluginRoot == "" || pluginRoot == "${CLAUDE_PLUGIN_ROOT}" {
+		pluginRoot = "."
+	}
+
+	return &Config{
+		Notifications: NotificationsConfig{
+			Desktop: DesktopConfig{
+				Enabled:      true,
+				Sound:        true,
+				Volume:       1.0, // Full volume by default
+				AppIcon:      filepath.Join(pluginRoot, "claude_icon.png"),
+				ClickToFocus: true, // macOS: activate terminal on click (default: enabled)
+				// TerminalBundleID: "" - empty means auto-detect
+			},
+			Webhook: WebhookConfig{
+				Enabled:       false,
+				Preset:        "custom",
+				URL:           "",
+				ChatID:        "",
+				Format:        "json",
+				Headers:       make(map[string]string),
+				PayloadFields: make(map[string]interface{}),
+				Retry: RetryConfig{
+					Enabled:        true,
+					MaxAttempts:    3,
+					InitialBackoff: "1s",
+					MaxBackoff:     "10s",
+				},
+				CircuitBreaker: CircuitBreakerConfig{
+					Enabled:          true,
+					FailureThreshold: 5,
+					Timeout:          "30s",
+					SuccessThreshold: 2,
+				},
+				RateLimit: RateLimitConfig{
+					Enabled:           true,
+					RequestsPerMinute: 10,
+				},
+			},
+			SuppressQuestionAfterTaskCompleteSeconds:    intPtr(12),
+			SuppressQuestionAfterAnyNotificationSeconds: intPtr(defaultSuppressQuestionAfterAnyNotificationSeconds),
+		},
+		Statuses: map[string]StatusInfo{
+			"task_complete": {
+				Title: "✅ Completed",
+				Sound: filepath.Join(pluginRoot, "sounds", "task-complete.mp3"),
+			},
+			"review_complete": {
+				Title: "🔍 Review",
+				Sound: filepath.Join(pluginRoot, "sounds", "review-complete.mp3"),
+			},
+			"question": {
+				Title: "❓ Question",
+				Sound: filepath.Join(pluginRoot, "sounds", "question.mp3"),
+			},
+			"plan_ready": {
+				Title: "📋 Plan",
+				Sound: filepath.Join(pluginRoot, "sounds", "plan-ready.mp3"),
+			},
+			"session_limit_reached": {
+				Title: "⏱️ Session Limit Reached",
+				Sound: filepath.Join(pluginRoot, "sounds", "error.mp3"),
+			},
+			"api_error": {
+				Title: "🔴 API Error: 401",
+				Sound: filepath.Join(pluginRoot, "sounds", "error.mp3"),
+			},
+			"api_error_overloaded": {
+				Title: "🔴 API Error",
+				Sound: filepath.Join(pluginRoot, "sounds", "error.mp3"),
+			},
+		},
+	}
+}
+
+// Load loads configuration from a file
+// If the file doesn't exist, returns default config
+func Load(path string) (*Config, error) {
+	// If path doesn't exist, use default config
+	if !platform.FileExists(path) {
+		return DefaultConfig(), nil
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
+
+	config := DefaultConfig()
+	if err := json.Unmarshal(data, config); err != nil {
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	// Expand environment variables in paths
+	config.Notifications.Desktop.AppIcon = platform.ExpandEnv(config.Notifications.Desktop.AppIcon)
+	config.Notifications.Webhook.URL = platform.ExpandEnv(config.Notifications.Webhook.URL)
+
+	// Expand environment variables in sound paths
+	for status, info := range config.Statuses {
+		info.Sound = platform.ExpandEnv(info.Sound)
+		config.Statuses[status] = info
+	}
+
+	// Apply defaults for missing fields
+	config.ApplyDefaults()
+
+	return config, nil
+}
+
+// GetStableConfigDir returns the stable config directory outside the plugin cache.
+// This directory survives plugin updates (bootstrap.sh rm -rf of cache).
+func GetStableConfigDir() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("cannot determine home directory: %w", err)
+	}
+	return filepath.Join(home, ".claude", "claude-notifications-go"), nil
+}
+
+// GetStableConfigPath returns the stable config file path outside the plugin cache.
+func GetStableConfigPath() (string, error) {
+	dir, err := GetStableConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "config.json"), nil
+}
+
+// LoadFromPluginRoot loads configuration with a resilient fallback chain:
+// 1. Stable path (~/.claude/claude-notifications-go/config.json) — preferred
+// 2. Old path (pluginRoot/config/config.json) — fallback, auto-migrates to stable
+// 3. Default config — if neither path has valid config
+//
+// Corrupted config files are non-fatal: a warning is printed to stderr and
+// logged, then the next source in the chain is tried.
+func LoadFromPluginRoot(pluginRoot string) (*Config, error) {
+	// 1. Try stable path
+	stablePath, stableErr := GetStableConfigPath()
+	if stableErr != nil {
+		msg := fmt.Sprintf("warning: cannot resolve stable config path: %v, using legacy path only", stableErr)
+		fmt.Fprintln(os.Stderr, msg)
+		logging.Warn("%s", msg)
+	}
+	if stableErr == nil {
+		if platform.FileExists(stablePath) {
+			cfg, err := Load(stablePath)
+			if err != nil {
+				// Corrupted stable config — warn and fall through to old path
+				msg := fmt.Sprintf("warning: failed to load config from %s: %v, trying legacy path", stablePath, err)
+				fmt.Fprintln(os.Stderr, msg)
+				logging.Warn("%s", msg)
+			} else {
+				return cfg, nil
+			}
+		}
+	}
+
+	// 2. Try old path (pluginRoot/config/config.json)
+	oldPath := filepath.Join(pluginRoot, "config", "config.json")
+	if platform.FileExists(oldPath) {
+		cfg, err := Load(oldPath)
+		if err != nil {
+			// Corrupted old config — warn, return defaults (non-fatal)
+			msg := fmt.Sprintf("warning: corrupted config at %s, using defaults", oldPath)
+			fmt.Fprintln(os.Stderr, msg)
+			logging.Warn("%s", msg)
+			return DefaultConfig(), nil
+		}
+
+		// Migrate to stable path (best-effort)
+		if stableErr == nil && stablePath != "" {
+			if migErr := migrateConfig(oldPath, stablePath); migErr != nil {
+				msg := fmt.Sprintf("warning: config migration failed: %v", migErr)
+				fmt.Fprintln(os.Stderr, msg)
+				logging.Warn("%s", msg)
+			}
+		}
+
+		return cfg, nil
+	}
+
+	// 3. Neither path has config — return defaults
+	return DefaultConfig(), nil
+}
+
+// migrateConfig copies config from oldPath to stablePath atomically.
+// Uses temp file + rename in the same directory for safe atomic write.
+func migrateConfig(oldPath, stablePath string) error {
+	data, err := os.ReadFile(oldPath)
+	if err != nil {
+		return err
+	}
+
+	dir := filepath.Dir(stablePath)
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+
+	// Create temp file in same dir — guarantees same filesystem for safe os.Rename
+	tmpFile, err := os.CreateTemp(dir, "config-*.json.tmp")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmpFile.Name()
+	defer os.Remove(tmpPath) // cleanup on any error path
+
+	if _, err := tmpFile.Write(data); err != nil {
+		tmpFile.Close()
+		return err
+	}
+	if err := tmpFile.Sync(); err != nil {
+		tmpFile.Close()
+		return err
+	}
+	if err := tmpFile.Close(); err != nil {
+		return err
+	}
+	if err := os.Chmod(tmpPath, 0600); err != nil {
+		return err
+	}
+	return os.Rename(tmpPath, stablePath)
+}
+
+// ApplyDefaults fills in missing fields with default values
+func (c *Config) ApplyDefaults() {
+	// Desktop defaults
+	if c.Notifications.Desktop.Volume == 0 {
+		c.Notifications.Desktop.Volume = 1.0 // Default to full volume
+	}
+	// AppIcon: Keep empty if not set (no default)
+
+	// Webhook defaults
+	if c.Notifications.Webhook.Preset == "" {
+		c.Notifications.Webhook.Preset = "custom"
+	}
+	if c.Notifications.Webhook.Format == "" {
+		c.Notifications.Webhook.Format = "json"
+	}
+	if c.Notifications.Webhook.Headers == nil {
+		c.Notifications.Webhook.Headers = make(map[string]string)
+	}
+	if c.Notifications.Webhook.PayloadFields == nil {
+		c.Notifications.Webhook.PayloadFields = make(map[string]interface{})
+	}
+	if c.Notifications.Webhook.Preset == "feishu_app" && c.Notifications.Feishu.Mode == "" {
+		c.Notifications.Feishu.Mode = "app_registration"
+	}
+	if c.Notifications.Feishu.Mode == "app_registration" {
+		if c.Notifications.Feishu.Platform == "" {
+			c.Notifications.Feishu.Platform = "feishu"
+		}
+		if c.Notifications.Feishu.ReceiveIDType == "" {
+			c.Notifications.Feishu.ReceiveIDType = "open_id"
+		}
+		if c.Notifications.Feishu.ReceiveID == "" && c.Notifications.Feishu.OwnerOpenID != "" {
+			c.Notifications.Feishu.ReceiveID = c.Notifications.Feishu.OwnerOpenID
+		}
+	}
+
+	// Cooldown defaults (nil = not set in config, apply defaults)
+	if c.Notifications.SuppressQuestionAfterTaskCompleteSeconds == nil {
+		c.Notifications.SuppressQuestionAfterTaskCompleteSeconds = intPtr(12)
+	}
+	if c.Notifications.SuppressQuestionAfterAnyNotificationSeconds == nil {
+		c.Notifications.SuppressQuestionAfterAnyNotificationSeconds = intPtr(defaultSuppressQuestionAfterAnyNotificationSeconds)
+	}
+
+	// Status defaults
+	defaults := DefaultConfig()
+	if c.Statuses == nil {
+		c.Statuses = defaults.Statuses
+	} else {
+		// Fill in missing statuses
+		for key, val := range defaults.Statuses {
+			if _, exists := c.Statuses[key]; !exists {
+				c.Statuses[key] = val
+			}
+		}
+	}
+}
+
+// Validate validates the configuration
+func (c *Config) Validate() error {
+	// Validate volume
+	if c.Notifications.Desktop.Volume < 0.0 || c.Notifications.Desktop.Volume > 1.0 {
+		return fmt.Errorf("desktop volume must be between 0.0 and 1.0 (got %.2f)", c.Notifications.Desktop.Volume)
+	}
+
+	// Validate webhook preset (only if webhooks are enabled)
+	validPresets := map[string]bool{
+		"slack":      true,
+		"discord":    true,
+		"telegram":   true,
+		"lark":       true,
+		"feishu_app": true,
+		"custom":     true,
+	}
+	if c.Notifications.Webhook.Enabled && !validPresets[c.Notifications.Webhook.Preset] {
+		return fmt.Errorf("invalid webhook preset: %s (must be one of: slack, discord, telegram, lark, feishu_app, custom)", c.Notifications.Webhook.Preset)
+	}
+
+	// Validate webhook format (only if webhooks are enabled)
+	validFormats := map[string]bool{
+		"json": true,
+		"text": true,
+	}
+	if c.Notifications.Webhook.Enabled && !validFormats[c.Notifications.Webhook.Format] {
+		return fmt.Errorf("invalid webhook format: %s (must be one of: json, text)", c.Notifications.Webhook.Format)
+	}
+
+	if c.Notifications.Webhook.Enabled &&
+		c.Notifications.Webhook.Preset == "custom" &&
+		c.Notifications.Webhook.Format == "text" &&
+		len(c.Notifications.Webhook.PayloadFields) > 0 {
+		return fmt.Errorf("webhook payloadFields require json format when using custom preset")
+	}
+
+	// Validate webhook URL if enabled
+	if c.Notifications.Webhook.Enabled && c.Notifications.Webhook.Preset != "feishu_app" && c.Notifications.Webhook.URL == "" {
+		return fmt.Errorf("webhook URL is required when webhooks are enabled")
+	}
+
+	if c.Notifications.Webhook.Enabled && c.Notifications.Webhook.Preset == "feishu_app" {
+		if err := c.validateFeishuApp(); err != nil {
+			return err
+		}
+	}
+
+	// Validate Telegram chat_id if Telegram preset is used
+	if c.Notifications.Webhook.Enabled && c.Notifications.Webhook.Preset == "telegram" && c.Notifications.Webhook.ChatID == "" {
+		return fmt.Errorf("chat_id is required for Telegram webhook")
+	}
+
+	// Validate cooldowns (both fields, if explicitly set)
+	if c.Notifications.SuppressQuestionAfterTaskCompleteSeconds != nil && *c.Notifications.SuppressQuestionAfterTaskCompleteSeconds < 0 {
+		return fmt.Errorf("suppressQuestionAfterTaskCompleteSeconds must be >= 0")
+	}
+	if c.Notifications.SuppressQuestionAfterAnyNotificationSeconds != nil && *c.Notifications.SuppressQuestionAfterAnyNotificationSeconds < 0 {
+		return fmt.Errorf("suppressQuestionAfterAnyNotificationSeconds must be >= 0")
+	}
+
+	// Validate teamMode
+	validTeamModes := map[string]bool{"": true, "wait-all": true, "always": true, "never": true}
+	if !validTeamModes[c.Notifications.TeamMode] {
+		return fmt.Errorf("invalid teamMode %q (must be one of: always, wait-all, never)", c.Notifications.TeamMode)
+	}
+
+	// Validate suppress-filters
+	validStatuses := map[string]bool{
+		"task_complete":         true,
+		"review_complete":       true,
+		"question":              true,
+		"plan_ready":            true,
+		"session_limit_reached": true,
+		"api_error":             true,
+		"api_error_overloaded":  true,
+	}
+	for i, f := range c.Notifications.SuppressFilters {
+		if !f.HasConditions() {
+			return fmt.Errorf("suppressFilters[%d]: must have at least one condition (status, gitBranch, or folder)", i)
+		}
+		if f.Status != nil && !validStatuses[*f.Status] {
+			return fmt.Errorf("suppressFilters[%d]: invalid status %q", i, *f.Status)
+		}
+	}
+
+	return nil
+}
+
+func (c *Config) validateFeishuApp() error {
+	feishu := c.Notifications.Feishu
+	if feishu.Mode != "" && feishu.Mode != "app_registration" {
+		return fmt.Errorf("feishu_app requires feishu.mode=app_registration")
+	}
+	if feishu.AppID == "" {
+		return fmt.Errorf("feishu app_id is required for feishu_app preset")
+	}
+	if feishu.ResolveAppSecret() == "" {
+		return fmt.Errorf("feishu app_secret or app_secret_env is required for feishu_app preset")
+	}
+	if feishu.ReceiveIDType == "" {
+		return fmt.Errorf("feishu receive_id_type is required for feishu_app preset")
+	}
+	if feishu.ReceiveID == "" {
+		return fmt.Errorf("feishu receive_id is required for feishu_app preset")
+	}
+	validReceiveIDTypes := map[string]bool{
+		"open_id":  true,
+		"chat_id":  true,
+		"user_id":  true,
+		"email":    true,
+		"union_id": true,
+	}
+	if !validReceiveIDTypes[feishu.ReceiveIDType] {
+		return fmt.Errorf("invalid feishu receive_id_type: %s (must be one of: open_id, chat_id, user_id, email, union_id)", feishu.ReceiveIDType)
+	}
+	return nil
+}
+
+// GetStatusInfo returns status information for a given status
+func (c *Config) GetStatusInfo(status string) (StatusInfo, bool) {
+	info, exists := c.Statuses[status]
+	return info, exists
+}
+
+// IsDesktopEnabled returns true if desktop notifications are enabled
+func (c *Config) IsDesktopEnabled() bool {
+	return c.Notifications.Desktop.Enabled
+}
+
+// IsWebhookEnabled returns true if webhook notifications are enabled
+func (c *Config) IsWebhookEnabled() bool {
+	return c.Notifications.Webhook.Enabled
+}
+
+// IsAnyNotificationEnabled returns true if at least one notification method is enabled
+func (c *Config) IsAnyNotificationEnabled() bool {
+	return c.IsDesktopEnabled() || c.IsWebhookEnabled()
+}
+
+// GetSuppressQuestionAfterTaskCompleteSeconds returns the cooldown in seconds
+// after task completion before question notifications are allowed (default: 12)
+func (c *Config) GetSuppressQuestionAfterTaskCompleteSeconds() int {
+	if c.Notifications.SuppressQuestionAfterTaskCompleteSeconds == nil {
+		return 12
+	}
+	return *c.Notifications.SuppressQuestionAfterTaskCompleteSeconds
+}
+
+// GetSuppressQuestionAfterAnyNotificationSeconds returns the cooldown in seconds
+// after any notification before question notifications are allowed (default: 7).
+func (c *Config) GetSuppressQuestionAfterAnyNotificationSeconds() int {
+	if c.Notifications.SuppressQuestionAfterAnyNotificationSeconds == nil {
+		return defaultSuppressQuestionAfterAnyNotificationSeconds
+	}
+	return *c.Notifications.SuppressQuestionAfterAnyNotificationSeconds
+}
+
+// ShouldNotifyOnTextResponse returns true if notifications should be sent for text-only responses (default: true)
+func (c *Config) ShouldNotifyOnTextResponse() bool {
+	if c.Notifications.NotifyOnTextResponse == nil {
+		return true // Default: notify on text responses
+	}
+	return *c.Notifications.NotifyOnTextResponse
+}
+
+// ShouldSuppressForSubagents returns true if notifications should be suppressed
+// when transcript_path contains /subagents/ (default: true)
+func (c *Config) ShouldSuppressForSubagents() bool {
+	if c.Notifications.SuppressForSubagents == nil {
+		return true // Default: suppress subagent notifications
+	}
+	return *c.Notifications.SuppressForSubagents
+}
+
+// IsBenchmarkEnabled returns true if benchmark timing is enabled via config
+func (c *Config) IsBenchmarkEnabled() bool {
+	return c.Debug.Benchmark
+}
+
+// ShouldRespectJudgeMode returns true if CLAUDE_HOOK_JUDGE_MODE=true env var should suppress notifications (default: true)
+func (c *Config) ShouldRespectJudgeMode() bool {
+	if c.Notifications.RespectJudgeMode == nil {
+		return true // Default: respect judge mode
+	}
+	return *c.Notifications.RespectJudgeMode
+}
+
+// GetTeamMode returns the team notification mode: "always" (default), "wait-all", or "never"
+func (c *Config) GetTeamMode() string {
+	switch c.Notifications.TeamMode {
+	case "wait-all", "never":
+		return c.Notifications.TeamMode
+	default:
+		return "always"
+	}
+}
+
+// IsStatusEnabled returns true if notifications for this status are enabled
+// Returns true by default (if Enabled is nil or not specified) for backward compatibility
+func (c *Config) IsStatusEnabled(status string) bool {
+	info, exists := c.Statuses[status]
+	if !exists {
+		return true // unknown statuses are enabled by default
+	}
+	if info.Enabled == nil {
+		return true // nil means enabled (backward compatibility)
+	}
+	return *info.Enabled
+}
+
+func isStatusChannelEnabled(channel *StatusChannelConfig) bool {
+	if channel == nil || channel.Enabled == nil {
+		return true
+	}
+	return *channel.Enabled
+}
+
+// IsTerminalBellEnabled returns true if terminal bell (BEL) should be sent (default: true)
+func (c *Config) IsTerminalBellEnabled() bool {
+	if c.Notifications.Desktop.TerminalBell == nil {
+		return true // Default: enabled
+	}
+	return *c.Notifications.Desktop.TerminalBell
+}
+
+// IsStatusDesktopEnabled returns true if desktop notifications for this status are enabled
+// Considers global desktop.enabled, per-status enabled, and per-channel desktop override.
+func (c *Config) IsStatusDesktopEnabled(status string) bool {
+	if !c.IsDesktopEnabled() || !c.IsStatusEnabled(status) {
+		return false
+	}
+
+	info, exists := c.Statuses[status]
+	if !exists {
+		return true
+	}
+
+	return isStatusChannelEnabled(info.Desktop)
+}
+
+// IsStatusWebhookEnabled returns true if webhook notifications for this status are enabled
+// Considers global webhook.enabled, per-status enabled, and per-channel webhook override.
+func (c *Config) IsStatusWebhookEnabled(status string) bool {
+	if !c.IsWebhookEnabled() || !c.IsStatusEnabled(status) {
+		return false
+	}
+
+	info, exists := c.Statuses[status]
+	if !exists {
+		return true
+	}
+
+	return isStatusChannelEnabled(info.Webhook)
+}
+
+// ShouldFilter returns true if any suppress-filter rule matches the given context.
+// When true, the notification should be suppressed entirely (both desktop and webhook).
+func (c *Config) ShouldFilter(status, gitBranch, folder string) bool {
+	for i := range c.Notifications.SuppressFilters {
+		if !c.Notifications.SuppressFilters[i].HasConditions() {
+			continue
+		}
+		if c.Notifications.SuppressFilters[i].Matches(status, gitBranch, folder) {
+			return true
+		}
+	}
+	return false
+}
