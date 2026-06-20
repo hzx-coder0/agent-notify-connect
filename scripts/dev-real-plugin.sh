@@ -10,7 +10,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MARKETPLACE_NAME="claude-notifications-go"
 PLUGIN_NAME="claude-notifications-go"
 PLUGIN_KEY="${PLUGIN_NAME}@${MARKETPLACE_NAME}"
-REMOTE_REPO="hzx-coder0/claude-codex-notifications"
+REMOTE_REPO="hzx-coder0/agent-notify-connect"
 
 REAL_CLAUDE_HOME="${REAL_CLAUDE_HOME:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}}"
 

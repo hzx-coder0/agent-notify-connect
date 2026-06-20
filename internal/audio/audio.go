@@ -19,7 +19,7 @@ import (
 	"github.com/gopxl/beep/vorbis"
 	"github.com/gopxl/beep/wav"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 // DeviceInfo represents an audio output device

@@ -14,8 +14,8 @@ import (
 
 	"github.com/gen2brain/beeep"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
 )
 
 func TestExtractSessionInfo(t *testing.T) {

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="${REPO:-hzx-coder0/claude-codex-notifications}"
-APP_NAME="claude-codex-notifications"
+REPO="${REPO:-hzx-coder0/agent-notify-connect}"
+APP_NAME="agent-notify-connect"
 INSTALL_ROOT="${INSTALL_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/${APP_NAME}}"
 VERSION=""
 INSTALL_CLAUDE=true
@@ -26,7 +26,7 @@ Options:
   -h, --help          Show this help
 
 Environment:
-  REPO                GitHub repo, default: hzx-coder0/claude-codex-notifications
+  REPO                GitHub repo, default: hzx-coder0/agent-notify-connect
   INSTALL_ROOT        Install directory
 USAGE
 }

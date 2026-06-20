@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/errorhandler"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/feishu"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/errorhandler"
+	"github.com/hzx-coder0/agent-notify-connect/internal/feishu"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 // Sender sends webhook notifications with professional patterns

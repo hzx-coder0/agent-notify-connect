@@ -68,7 +68,7 @@ git push origin --tags
 
 The `release.yml` workflow triggers on tag push and builds binaries for all platforms automatically.
 
-Verify at: https://github.com/hzx-coder0/claude-codex-notifications-go/releases
+Verify at: https://github.com/hzx-coder0/agent-notify-connect/releases
 
 ## ClaudeNotifier.app (macOS)
 
@@ -118,9 +118,9 @@ Description of what was added and why.
 
 ---
 
-📦 **[Installation](https://github.com/hzx-coder0/claude-codex-notifications-go#installation)** · 🔄 **[Updating](https://github.com/hzx-coder0/claude-codex-notifications-go#updating)**
+📦 **[Installation](https://github.com/hzx-coder0/agent-notify-connect#installation)** · 🔄 **[Updating](https://github.com/hzx-coder0/agent-notify-connect#updating)**
 
-**Full Changelog**: https://github.com/hzx-coder0/claude-codex-notifications-go/compare/vPREV...vX.Y.Z
+**Full Changelog**: https://github.com/hzx-coder0/agent-notify-connect/compare/vPREV...vX.Y.Z
 NOTES_EOF
 )"
 ```
@@ -130,8 +130,8 @@ NOTES_EOF
 Comment on fixed issues and merged PRs with a link to the release:
 
 ```bash
-gh issue comment N --body "Fixed in [vX.Y.Z](https://github.com/hzx-coder0/claude-codex-notifications-go/releases/tag/vX.Y.Z)."
-gh pr comment N --body "Released in [vX.Y.Z](https://github.com/hzx-coder0/claude-codex-notifications-go/releases/tag/vX.Y.Z)."
+gh issue comment N --body "Fixed in [vX.Y.Z](https://github.com/hzx-coder0/agent-notify-connect/releases/tag/vX.Y.Z)."
+gh pr comment N --body "Released in [vX.Y.Z](https://github.com/hzx-coder0/agent-notify-connect/releases/tag/vX.Y.Z)."
 ```
 
 ## How auto-update works

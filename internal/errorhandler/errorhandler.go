@@ -6,7 +6,7 @@ import (
 	"runtime/debug"
 	"sync"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 // ErrorHandler provides global error handling and logging

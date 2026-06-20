@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
 )
 
 var StatusOrder = []string{

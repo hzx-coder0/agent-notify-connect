@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/sessionname"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/platform"
+	"github.com/hzx-coder0/agent-notify-connect/internal/sessionname"
 )
 
 var templatePattern = regexp.MustCompile(`\$\{\{\s*([^{}]+?)\s*\}\}`)

@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
 )
 
 func TestSendWithTerminalNotifier_Integration(t *testing.T) {

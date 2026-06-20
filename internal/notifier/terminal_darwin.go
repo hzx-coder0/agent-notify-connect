@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/platform"
 )
 
 // terminalBundleIDMap maps TERM_PROGRAM values to macOS bundle identifiers

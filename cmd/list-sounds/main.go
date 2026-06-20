@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/audio"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/sounds"
+	"github.com/hzx-coder0/agent-notify-connect/internal/audio"
+	"github.com/hzx-coder0/agent-notify-connect/internal/sounds"
 )
 
 func main() {

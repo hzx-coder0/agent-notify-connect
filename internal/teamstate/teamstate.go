@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 // teamConfig represents the relevant fields from ~/.claude/teams/{name}/config.json

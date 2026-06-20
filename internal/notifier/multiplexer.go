@@ -3,7 +3,7 @@ package notifier
 import (
 	"fmt"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 // multiplexerHandler describes a terminal multiplexer integration.

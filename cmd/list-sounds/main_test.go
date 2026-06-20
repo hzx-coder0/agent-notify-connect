@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/sounds"
+	"github.com/hzx-coder0/agent-notify-connect/internal/sounds"
 )
 
 func buildBinary(t *testing.T) string {

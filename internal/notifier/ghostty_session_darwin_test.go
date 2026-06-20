@@ -5,7 +5,7 @@ package notifier
 import (
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/state"
+	"github.com/hzx-coder0/agent-notify-connect/internal/state"
 )
 
 func TestGhosttyFrontmostTerminalMatchesSession_ExactCWD(t *testing.T) {

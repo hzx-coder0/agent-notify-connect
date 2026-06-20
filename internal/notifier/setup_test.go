@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
+	"github.com/hzx-coder0/agent-notify-connect/internal/platform"
 )
 
 // TestSoundPathConstruction tests the logic for constructing sound paths

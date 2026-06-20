@@ -5,7 +5,7 @@ package main
 import (
 	"log"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/daemon"
+	"github.com/hzx-coder0/agent-notify-connect/internal/daemon"
 )
 
 // runDaemon runs the notification daemon server on Linux

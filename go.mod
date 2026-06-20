@@ -1,4 +1,4 @@
-module github.com/hzx-coder0/claude-codex-notifications
+module github.com/hzx-coder0/agent-notify-connect
 
 go 1.21.5
 

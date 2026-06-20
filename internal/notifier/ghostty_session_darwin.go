@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/state"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/state"
 )
 
 const ghosttyFrontmostTerminalInfoTimeout = 1500 * time.Millisecond

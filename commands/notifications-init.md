@@ -6,4 +6,4 @@ allowed-tools: Bash
 
 This command has been renamed to the shorter form.
 
-Please run [`/claude-codex-notifications:init`](./init.md) instead.
+Please run [`/agent-notify-connect:init`](./init.md) instead.

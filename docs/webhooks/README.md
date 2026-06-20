@@ -118,7 +118,7 @@ The system automatically detects and formats these statuses:
 ## Support
 
 For issues, questions, or contributions:
-- GitHub Issues: https://github.com/hzx-coder0/claude-codex-notifications-go/issues
+- GitHub Issues: https://github.com/hzx-coder0/agent-notify-connect/issues
 - Main Documentation: [README.md](../../README.md)
 
 ---

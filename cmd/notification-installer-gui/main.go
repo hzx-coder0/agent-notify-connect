@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/installer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/installer"
 )
 
 //go:embed installer_gui.ps1

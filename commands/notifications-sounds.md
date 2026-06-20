@@ -6,4 +6,4 @@ allowed-tools: Bash
 
 This command has been renamed to the shorter form.
 
-Please run [`/claude-codex-notifications:sounds`](./sounds.md) instead.
+Please run [`/agent-notify-connect:sounds`](./sounds.md) instead.

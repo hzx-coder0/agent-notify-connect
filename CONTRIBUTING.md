@@ -13,8 +13,8 @@ Thank you for your interest in contributing to Claude Notifications!
 ### 1. Clone and build
 
 ```bash
-git clone https://github.com/hzx-coder0/claude-codex-notifications-go
-cd claude-notifications-go
+git clone https://github.com/hzx-coder0/agent-notify-connect
+cd agent-notify-connect
 make build
 ```
 
@@ -25,16 +25,16 @@ make build
 /plugin marketplace add .
 
 # Install plugin
-/plugin install claude-codex-notifications@claude-codex-notifications
+/plugin install agent-notify-connect@agent-notify-connect
 
 # Restart Claude Code for hooks to take effect
 
 # Download binary and configure settings
-/claude-codex-notifications:init
-/claude-codex-notifications:settings
+/agent-notify-connect:init
+/agent-notify-connect:settings
 ```
 
-`/claude-codex-notifications:init` will use your locally built binary from `bin/` if it exists, otherwise it downloads from GitHub Releases.
+`/agent-notify-connect:init` will use your locally built binary from `bin/` if it exists, otherwise it downloads from GitHub Releases.
 
 For repeatable local install/update testing without touching your real Claude setup, use:
 
@@ -170,4 +170,4 @@ See **[Release Checklist](docs/RELEASE.md)** for the full step-by-step guide.
 
 ## Reporting Issues
 
-Found a bug or have a feature request? [Open an issue](https://github.com/hzx-coder0/claude-codex-notifications-go/issues).
+Found a bug or have a feature request? [Open an issue](https://github.com/hzx-coder0/agent-notify-connect/issues).

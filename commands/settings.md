@@ -83,7 +83,7 @@ if [ "$BINARY_EXISTS" = "false" ]; then
   if ! "${PLUGIN_ROOT}/bin/install.sh"; then
     echo ""
     echo "❌ Error: Failed to install notification binary"
-    echo "Please run /claude-codex-notifications:init or check your internet connection"
+    echo "Please run /agent-notify-connect:init or check your internet connection"
     exit 1
   fi
   echo ""
@@ -592,7 +592,7 @@ if [ -x "${PLUGIN_ROOT}/bin/claude-notifications" ]; then
 elif [ -x "${PLUGIN_ROOT}/bin/claude-notifications-windows-amd64.exe" ]; then
   "${PLUGIN_ROOT}/bin/claude-notifications-windows-amd64.exe" feishu bind
 else
-  echo "❌ claude-notifications binary not found. Run /claude-codex-notifications:init first."
+  echo "❌ claude-notifications binary not found. Run /agent-notify-connect:init first."
   exit 1
 fi
 ```
@@ -785,7 +785,7 @@ echo "✓ Sound test complete!"
 ## Additional Notes
 
 **Editing Later:**
-- You can re-run `/claude-codex-notifications:settings` anytime to reconfigure
+- You can re-run `/agent-notify-connect:settings` anytime to reconfigure
 - Or manually edit `~/.claude/claude-notifications-go/config.json`
 
 **Webhook Configuration:**

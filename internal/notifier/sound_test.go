@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/platform"
 )
 
 // TestPlaySoundWithBuiltInFiles tests sound playback with actual MP3 files if available

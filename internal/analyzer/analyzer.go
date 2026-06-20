@@ -3,8 +3,8 @@ package analyzer
 import (
 	"strings"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/pkg/jsonl"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/pkg/jsonl"
 )
 
 // Tool categories for state machine classification

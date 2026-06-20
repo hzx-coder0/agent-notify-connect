@@ -199,7 +199,7 @@ If you cannot run `windows-hooks`, replace the installed plugin's `hooks/hooks.j
 }
 ```
 
-This workaround is based on confirmed Windows 11 behavior from [issue #73](https://github.com/hzx-coder0/claude-codex-notifications-go/issues/73#issuecomment-4364271319).
+This workaround is based on confirmed Windows 11 behavior from [issue #73](https://github.com/hzx-coder0/agent-notify-connect/issues/73#issuecomment-4364271319).
 
 ### Note about beeep logs
 

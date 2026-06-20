@@ -13,7 +13,7 @@ Codex and Claude Code share the same plugin config:
 Run the normal settings command from Claude Code:
 
 ```text
-/claude-codex-notifications:settings
+/agent-notify-connect:settings
 ```
 
 For Feishu/Lark QR binding, run:

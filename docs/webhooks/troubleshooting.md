@@ -532,7 +532,7 @@ If you're still stuck after trying these solutions:
    - Error messages
 
 2. **Check existing issues:**
-   - GitHub Issues: https://github.com/hzx-coder0/claude-codex-notifications-go/issues
+   - GitHub Issues: https://github.com/hzx-coder0/agent-notify-connect/issues
 
 3. **Create detailed issue:**
    - Include reproduction steps

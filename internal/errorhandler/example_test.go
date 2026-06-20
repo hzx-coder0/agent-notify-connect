@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/errorhandler"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/errorhandler"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 // Example demonstrates the error handler usage with console output

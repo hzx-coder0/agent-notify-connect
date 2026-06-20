@@ -6,4 +6,4 @@ allowed-tools: Bash, AskUserQuestion, Write, Read
 
 This command has been renamed to the shorter form.
 
-Please run [`/claude-codex-notifications:settings`](./settings.md) instead.
+Please run [`/agent-notify-connect:settings`](./settings.md) instead.

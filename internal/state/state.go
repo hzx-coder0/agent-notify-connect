@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/platform"
 )
 
 // SessionState represents per-session state

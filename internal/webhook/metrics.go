@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
 )
 
 // Metrics tracks webhook statistics

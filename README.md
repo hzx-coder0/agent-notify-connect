@@ -20,10 +20,10 @@ Claude Code 和 Codex 的本地通知 + 飞书/Lark 通知工具。
 
 ## Windows 安装
 
-从 [Releases](https://github.com/hzx-coder0/claude-codex-notifications/releases/latest) 下载 Windows zip：
+从 [Releases](https://github.com/hzx-coder0/agent-notify-connect/releases/latest) 下载 Windows zip：
 
 ```text
-claude-codex-notifications-windows-amd64.zip
+agent-notify-connect-windows-amd64.zip
 ```
 
 解压后双击：
@@ -54,25 +54,25 @@ bin/notification-installer-gui-windows-amd64.exe
 默认同时安装 Claude Code 和 Codex hooks：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hzx-coder0/claude-codex-notifications/main/scripts/install-linux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hzx-coder0/agent-notify-connect/main/scripts/install-linux.sh | bash
 ```
 
 安装并立刻扫码绑定飞书/Lark：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hzx-coder0/claude-codex-notifications/main/scripts/install-linux.sh | bash -s -- --bind-feishu
+curl -fsSL https://raw.githubusercontent.com/hzx-coder0/agent-notify-connect/main/scripts/install-linux.sh | bash -s -- --bind-feishu
 ```
 
 安装后发送一次测试通知：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hzx-coder0/claude-codex-notifications/main/scripts/install-linux.sh | bash -s -- --bind-feishu --test
+curl -fsSL https://raw.githubusercontent.com/hzx-coder0/agent-notify-connect/main/scripts/install-linux.sh | bash -s -- --bind-feishu --test
 ```
 
 默认安装目录：
 
 ```text
-${XDG_DATA_HOME:-$HOME/.local/share}/claude-codex-notifications
+${XDG_DATA_HOME:-$HOME/.local/share}/agent-notify-connect
 ```
 
 安装完成后，可以删除 clone 目录。hooks 写入的是安装目录里的绝对路径。

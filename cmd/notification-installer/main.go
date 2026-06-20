@@ -2,17 +2,19 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/installer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/webhook"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/feishu"
+	"github.com/hzx-coder0/agent-notify-connect/internal/installer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/webhook"
 )
 
 func main() {
@@ -57,9 +59,19 @@ func run() error {
 	installCodex := askYesNo(reader, "Write Codex hooks to ~/.codex/hooks.json?", true)
 
 	if askYesNo(reader, "Connect Feishu/Lark now?", !installer.HasFeishuAppBinding(cfg)) {
-		fmt.Println("Run this in another terminal, scan, then press Enter here:")
-		fmt.Printf("  %s feishu bind\n", exePath)
-		_, _ = reader.ReadString('\n')
+		result, err := feishu.Bind(context.Background(), installRoot, feishu.BindingOptions{
+			Timeout:         10 * time.Minute,
+			ReceiveIDType:   "open_id",
+			OpenBrowser:     true,
+			PrintURL:        true,
+			PrintTerminalQR: true,
+			Out:             os.Stdout,
+		})
+		if err != nil {
+			return fmt.Errorf("feishu bind: %w", err)
+		}
+		fmt.Println("Feishu binding saved.")
+		fmt.Printf("Config: %s\n", result.ConfigPath)
 		reloaded, err := config.LoadFromPluginRoot(installRoot)
 		if err != nil {
 			return err

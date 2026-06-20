@@ -1,6 +1,6 @@
 #!/bin/bash
-# bootstrap.sh - One-command install/update for claude-codex-notifications plugin
-# Usage: curl -fsSL https://raw.githubusercontent.com/hzx-coder0/claude-codex-notifications/main/bin/bootstrap.sh | bash
+# bootstrap.sh - One-command install/update for agent-notify-connect plugin
+# Usage: curl -fsSL https://raw.githubusercontent.com/hzx-coder0/agent-notify-connect/main/bin/bootstrap.sh | bash
 
 set -euo pipefail
 
@@ -13,10 +13,10 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 # Constants
-REPO="${REPO:-hzx-coder0/claude-codex-notifications}"
+REPO="${REPO:-hzx-coder0/agent-notify-connect}"
 MARKETPLACE_SOURCE="${BOOTSTRAP_MARKETPLACE_SOURCE:-$REPO}"
-MARKETPLACE_NAME="claude-codex-notifications"
-PLUGIN_NAME="claude-codex-notifications"
+MARKETPLACE_NAME="agent-notify-connect"
+PLUGIN_NAME="agent-notify-connect"
 PLUGIN_KEY="${PLUGIN_NAME}@${MARKETPLACE_NAME}"
 INSTALL_SCRIPT_URL="${INSTALL_SCRIPT_URL:-https://raw.githubusercontent.com/${REPO}/main/bin/install.sh}"
 
@@ -562,8 +562,8 @@ if [ -z "$CLAUDE_HOME" ]; then
 fi
 
 INSTALLED_JSON="${CLAUDE_HOME}/plugins/installed_plugins.json"
-MARKETPLACE_NAME="claude-codex-notifications"
-PLUGIN_KEY="claude-codex-notifications@claude-codex-notifications"
+MARKETPLACE_NAME="agent-notify-connect"
+PLUGIN_KEY="agent-notify-connect@agent-notify-connect"
 PLUGIN_ROOT=""
 
 if [ -f "$INSTALLED_JSON" ]; then
@@ -831,7 +831,7 @@ print_success() {
     echo ""
     echo -e "${BOLD}Next steps:${NC}"
     echo -e "  1. ${YELLOW}Restart Claude Code${NC} (exit and reopen)"
-    echo -e "  2. Run ${BOLD}/claude-codex-notifications:settings${NC} to configure sounds"
+    echo -e "  2. Run ${BOLD}/agent-notify-connect:settings${NC} to configure sounds"
     if is_iterm2_detected; then
         echo -e "  3. In ${BOLD}iTerm2${NC}, enable ${BOLD}Settings → General → Magic → Python API${NC}"
     fi

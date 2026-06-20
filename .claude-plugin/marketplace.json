@@ -1,21 +1,21 @@
 {
-    "name": "claude-codex-notifications",
+    "name": "agent-notify-connect",
     "owner": {
         "name": "hzx-coder0"
     },
     "metadata": {
         "description": "Claude Code and Codex notifications with Feishu/Lark QR binding",
-        "version": "1.0.0"
+        "version": "1.0.1"
     },
     "plugins": [{
-        "name": "claude-codex-notifications",
+        "name": "agent-notify-connect",
         "source": "./",
         "description": "Claude Code and Codex notifications with Feishu/Lark QR binding",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "author": {
             "name": "hzx-coder0"
         },
-        "repository": "https://github.com/hzx-coder0/claude-codex-notifications",
+        "repository": "https://github.com/hzx-coder0/agent-notify-connect",
         "license": "GPL-3.0",
         "keywords": [
             "notifications",

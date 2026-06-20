@@ -49,7 +49,7 @@ StatusCounts["session_limit_reached"] // Count of session_limit_reached notifica
 Metrics are tracked internally and accessible programmatically:
 
 ```go
-import "github.com/hzx-coder0/claude-codex-notifications/internal/webhook"
+import "github.com/hzx-coder0/agent-notify-connect/internal/webhook"
 
 sender := webhook.New(cfg)
 stats := sender.GetMetrics()

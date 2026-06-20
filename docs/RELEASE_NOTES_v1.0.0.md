@@ -1,6 +1,6 @@
 # v1.0.0
 
-Initial release of `claude-codex-notifications`.
+Initial release of `agent-notify-connect`.
 
 ## Included
 
@@ -18,7 +18,7 @@ Initial release of `claude-codex-notifications`.
 
 Windows:
 
-Download `claude-codex-notifications-windows-amd64.zip`, unzip it, then run:
+Download `agent-notify-connect-windows-amd64.zip`, unzip it, then run:
 
 ```text
 bin/notification-installer-gui-windows-amd64.exe
@@ -27,13 +27,13 @@ bin/notification-installer-gui-windows-amd64.exe
 Linux:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hzx-coder0/claude-codex-notifications/main/scripts/install-linux.sh | bash
+curl -fsSL https://raw.githubusercontent.com/hzx-coder0/agent-notify-connect/main/scripts/install-linux.sh | bash
 ```
 
 Linux with Feishu/Lark binding:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hzx-coder0/claude-codex-notifications/main/scripts/install-linux.sh | bash -s -- --bind-feishu
+curl -fsSL https://raw.githubusercontent.com/hzx-coder0/agent-notify-connect/main/scripts/install-linux.sh | bash -s -- --bind-feishu
 ```
 
 ## Notes

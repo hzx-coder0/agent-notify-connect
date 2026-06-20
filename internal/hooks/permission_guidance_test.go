@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/notifier"
+	"github.com/hzx-coder0/agent-notify-connect/internal/notifier"
 )
 
 func captureStdout(t *testing.T, fn func()) string {

@@ -14,7 +14,7 @@
 ## Инициализация
 
 ```go
-import "github.com/hzx-coder0/claude-codex-notifications/internal/errorhandler"
+import "github.com/hzx-coder0/agent-notify-connect/internal/errorhandler"
 
 // Инициализация при старте приложения
 errorhandler.Init(

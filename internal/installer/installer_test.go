@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
 )
 
 func TestApplyProfileSetsGlobalAndPerStatusOptions(t *testing.T) {

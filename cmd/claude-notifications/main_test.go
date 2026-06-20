@@ -9,7 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/feishu"
 )
 
 func TestReadPluginManifestVersion(t *testing.T) {
@@ -250,7 +251,7 @@ func TestWriteConfigFileOverwritesExistingConfig(t *testing.T) {
 		ReceiveID:     "ou_xxx",
 	}
 
-	if err := writeConfigFile(configPath, cfg); err != nil {
+	if err := feishu.WriteConfigFile(configPath, cfg); err != nil {
 		t.Fatalf("writeConfigFile() error = %v", err)
 	}
 

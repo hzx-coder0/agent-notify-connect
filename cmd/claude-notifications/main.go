@@ -13,20 +13,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/audio"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/codexhooks"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/errorhandler"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/feishu"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/hooks"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/installer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/notifier"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/webhook"
-	"rsc.io/qr"
+	"github.com/hzx-coder0/agent-notify-connect/internal/audio"
+	"github.com/hzx-coder0/agent-notify-connect/internal/codexhooks"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/errorhandler"
+	"github.com/hzx-coder0/agent-notify-connect/internal/feishu"
+	"github.com/hzx-coder0/agent-notify-connect/internal/hooks"
+	"github.com/hzx-coder0/agent-notify-connect/internal/installer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/notifier"
+	"github.com/hzx-coder0/agent-notify-connect/internal/webhook"
 )
 
-const version = "1.0.0"
+const version = "1.0.1"
 const windowsLazyUpdateRetryAfter = time.Hour
 
 var (
@@ -457,6 +456,7 @@ func runFeishuBind(args []string) {
 	receiveID := fs.String("receive-id", "", "Feishu receive_id; defaults to scanned user's open_id")
 	qrImage := fs.String("qr-image", "", "Save QR code as PNG image to this path")
 	noBrowser := fs.Bool("no-browser", false, "Do not open the QR onboarding URL in the browser")
+	noTerminalQR := fs.Bool("no-terminal-qr", false, "Do not print QR code in the terminal")
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintf(os.Stderr, "feishu bind: %v\n", err)
 		os.Exit(1)
@@ -470,170 +470,28 @@ func runFeishuBind(args []string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(*timeoutSeconds)*time.Second)
 	defer cancel()
 
-	reg := feishu.NewRegistrationClient()
-	begin, err := reg.Begin(ctx)
+	result, err := feishu.Bind(ctx, getPluginRoot(), feishu.BindingOptions{
+		Timeout:         time.Duration(*timeoutSeconds) * time.Second,
+		ReceiveIDType:   strings.TrimSpace(*receiveIDType),
+		ReceiveID:       strings.TrimSpace(*receiveID),
+		QRImagePath:     strings.TrimSpace(*qrImage),
+		OpenBrowser:     !*noBrowser,
+		PrintURL:        true,
+		PrintTerminalQR: !*noTerminalQR,
+		Out:             os.Stdout,
+	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "feishu bind: %v\n", err)
 		os.Exit(1)
 	}
-
-	fmt.Println("Use Feishu/Lark mobile app to scan this QR code:")
-	fmt.Printf("URL: %s\n\n", begin.VerificationURIComplete)
-	if strings.TrimSpace(*qrImage) != "" {
-		if err := saveQRCodeImage(begin.VerificationURIComplete, strings.TrimSpace(*qrImage)); err != nil {
-			fmt.Fprintf(os.Stderr, "feishu bind: save QR image failed: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("QR image: %s\n\n", strings.TrimSpace(*qrImage))
-	}
-	if !*noBrowser {
-		_ = openBrowser(begin.VerificationURIComplete)
-	}
-
-	interval := time.Duration(begin.Interval) * time.Second
-	if interval <= 0 {
-		interval = 5 * time.Second
-	}
-	deadline := time.Now().Add(time.Duration(begin.ExpireIn) * time.Second)
-	if timeoutDeadline, ok := ctx.Deadline(); ok && timeoutDeadline.Before(deadline) {
-		deadline = timeoutDeadline
-	}
-
-	for time.Now().Before(deadline) {
-		poll, err := reg.Poll(ctx, begin.DeviceCode)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "feishu bind: %v\n", err)
-			os.Exit(1)
-		}
-		if poll.Status == "completed" {
-			finalReceiveID := strings.TrimSpace(*receiveID)
-			if finalReceiveID == "" {
-				finalReceiveID = poll.OwnerOpenID
-			}
-			if finalReceiveID == "" {
-				fmt.Fprintln(os.Stderr, "feishu bind: receive_id is required because registration did not return owner_open_id")
-				os.Exit(1)
-			}
-			if err := saveFeishuBinding(getPluginRoot(), poll, strings.TrimSpace(*receiveIDType), finalReceiveID); err != nil {
-				fmt.Fprintf(os.Stderr, "feishu bind: save config failed: %v\n", err)
-				os.Exit(1)
-			}
-			configPath, _ := config.GetStableConfigPath()
-			fmt.Println("Feishu binding saved.")
-			fmt.Printf("Config: %s\n", configPath)
-			fmt.Printf("Preset: feishu_app, receive_id_type=%s\n", strings.TrimSpace(*receiveIDType))
-			return
-		}
-		time.Sleep(interval)
-	}
-
-	fmt.Fprintln(os.Stderr, "feishu bind: timed out waiting for QR onboarding result")
-	os.Exit(1)
-}
-
-func saveFeishuBinding(pluginRoot string, binding *feishu.RegistrationPollResult, receiveIDType, receiveID string) error {
-	cfg, err := config.LoadFromPluginRoot(pluginRoot)
-	if err != nil {
-		return err
-	}
-
-	cfg.Notifications.Webhook.Enabled = true
-	cfg.Notifications.Webhook.Preset = "feishu_app"
-	cfg.Notifications.Webhook.Format = "json"
-	cfg.Notifications.Feishu = config.FeishuConfig{
-		Mode:          "app_registration",
-		Platform:      binding.Platform,
-		AppID:         binding.AppID,
-		AppSecret:     binding.AppSecret,
-		OwnerOpenID:   binding.OwnerOpenID,
-		ReceiveIDType: receiveIDType,
-		ReceiveID:     receiveID,
-	}
-	cfg.ApplyDefaults()
-	if err := cfg.Validate(); err != nil {
-		return err
-	}
-
-	configPath, err := config.GetStableConfigPath()
-	if err != nil {
-		return err
-	}
-	return writeConfigFile(configPath, cfg)
-}
-
-func writeConfigFile(configPath string, cfg *config.Config) error {
-	data, err := json.MarshalIndent(cfg, "", "  ")
-	if err != nil {
-		return err
-	}
-	data = append(data, '\n')
-
-	if err := os.MkdirAll(filepath.Dir(configPath), 0o700); err != nil {
-		return err
-	}
-
-	tmp, err := os.CreateTemp(filepath.Dir(configPath), "config-*.json.tmp")
-	if err != nil {
-		return err
-	}
-	tmpPath := tmp.Name()
-	defer os.Remove(tmpPath)
-
-	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Sync(); err != nil {
-		_ = tmp.Close()
-		return err
-	}
-	if err := tmp.Close(); err != nil {
-		return err
-	}
-	if err := os.Chmod(tmpPath, 0o600); err != nil {
-		return err
-	}
-	if runtime.GOOS == "windows" {
-		_ = os.Remove(configPath)
-	}
-	return os.Rename(tmpPath, configPath)
+	fmt.Println("Feishu binding saved.")
+	fmt.Printf("Config: %s\n", result.ConfigPath)
+	fmt.Printf("Preset: feishu_app, receive_id_type=%s\n", result.ReceiveIDType)
 }
 
 func printFeishuUsage() {
 	fmt.Println("Usage:")
-	fmt.Println("  claude-notifications feishu bind [--timeout 600] [--receive-id-type open_id] [--receive-id <id>] [--qr-image <path>] [--no-browser]")
-}
-
-func saveQRCodeImage(content, path string) error {
-	if content == "" {
-		return fmt.Errorf("QR content is required")
-	}
-	code, err := qr.Encode(content, qr.M)
-	if err != nil {
-		return fmt.Errorf("encode QR: %w", err)
-	}
-	code.Scale = 8
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return err
-	}
-	return os.WriteFile(path, code.PNG(), 0o644)
-}
-
-func openBrowser(rawURL string) error {
-	if rawURL == "" {
-		return nil
-	}
-
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", rawURL)
-	case "darwin":
-		cmd = exec.Command("open", rawURL)
-	default:
-		cmd = exec.Command("xdg-open", rawURL)
-	}
-	return cmd.Start()
+	fmt.Println("  claude-notifications feishu bind [--timeout 600] [--receive-id-type open_id] [--receive-id <id>] [--qr-image <path>] [--no-browser] [--no-terminal-qr]")
 }
 
 type pluginManifest struct {

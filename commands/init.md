@@ -30,7 +30,7 @@ echo "Plugin root: $PLUGIN_ROOT"
 echo ""
 
 # Always download the latest install.sh from GitHub to ensure we have newest version
-INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/hzx-coder0/claude-codex-notifications/main/bin/install.sh"
+INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/hzx-coder0/agent-notify-connect/main/bin/install.sh"
 # Use portable temp directory (works on macOS, Linux, Windows Git Bash)
 TEMP_DIR="${TMPDIR:-${TEMP:-/tmp}}"
 TEMP_INSTALL_SCRIPT="${TEMP_DIR}/claude-notifications-install-$$.sh"
@@ -66,7 +66,7 @@ echo ""
 echo "✅ Binary installed successfully!"
 echo ""
 echo "Next steps:"
-echo "  Run /claude-codex-notifications:settings to configure sounds and notifications"
+echo "  Run /agent-notify-connect:settings to configure sounds and notifications"
 ```
 
 This will automatically download the correct binary for your platform from GitHub Releases. Running this command again will update all binaries to the latest version.

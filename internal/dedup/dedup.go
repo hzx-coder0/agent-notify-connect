@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/platform"
 )
 
 // Manager handles deduplication using two-phase locking

@@ -265,8 +265,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 const windowFocusRetryAfterRestore = 2

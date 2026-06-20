@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
 )
 
 const iTerm2SessionIDEnv = "ITERM_SESSION_ID"

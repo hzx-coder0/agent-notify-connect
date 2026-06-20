@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/dedup"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/state"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/webhook"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/dedup"
+	"github.com/hzx-coder0/agent-notify-connect/internal/state"
+	"github.com/hzx-coder0/agent-notify-connect/internal/webhook"
 )
 
 // === E2E Test: Full Notification Cycle ===

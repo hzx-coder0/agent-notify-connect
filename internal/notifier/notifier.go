@@ -14,12 +14,12 @@ import (
 
 	"github.com/gen2brain/beeep"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/audio"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/errorhandler"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/logging"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/platform"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/audio"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/errorhandler"
+	"github.com/hzx-coder0/agent-notify-connect/internal/logging"
+	"github.com/hzx-coder0/agent-notify-connect/internal/platform"
 )
 
 const macOSPermissionDeniedMessage = "Notification permission denied. Enable in System Settings > Notifications."
@@ -373,7 +373,7 @@ func buildFocusScriptWithOptions(bundleID, cwd, ghosttyTerminalID string) string
 	// Automation permission prompts for notification click handlers — osascript fails silently.
 	// The focus-window approach uses Accessibility + Screen Recording instead of Automation,
 	// with graceful fallback to app-level activation when permissions are not granted.
-	// See: https://github.com/hzx-coder0/claude-codex-notifications-go/issues/47
+	// See: https://github.com/hzx-coder0/agent-notify-connect/issues/47
 	return buildBinaryFocusScript(bundleID, cwd, "")
 }
 
@@ -478,7 +478,7 @@ func (n *Notifier) sendWithBeeep(title, message, appIcon, sound string) error {
 	// - Windows: Use fixed AppName to prevent registry pollution. Each unique AppName
 	//   creates a persistent entry in HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\
 	//   CurrentVersion\Notifications\Settings\ that is never cleaned up.
-	//   See: https://github.com/hzx-coder0/claude-codex-notifications-go/issues/4
+	//   See: https://github.com/hzx-coder0/agent-notify-connect/issues/4
 	// - macOS/Linux: Use unique AppName to prevent notification grouping/replacement,
 	//   allowing multiple notifications to be displayed simultaneously.
 	originalAppName := beeep.AppName

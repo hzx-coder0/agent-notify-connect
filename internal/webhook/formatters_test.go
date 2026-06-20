@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hzx-coder0/claude-codex-notifications/internal/analyzer"
-	"github.com/hzx-coder0/claude-codex-notifications/internal/config"
+	"github.com/hzx-coder0/agent-notify-connect/internal/analyzer"
+	"github.com/hzx-coder0/agent-notify-connect/internal/config"
 )
 
 // makeCtx builds a SendContext for tests with the legacy fields populated.
